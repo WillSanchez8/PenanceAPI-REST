@@ -19,6 +19,7 @@ app.use('/book', bookRoutes);
 app.use('/user', userRoutes);
 app.use('/slider', sliderRoutes);
 
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, '0.0.0.0', () => {
     console.log(`Server started on port ${process.env.PORT}`);
 });
+
