@@ -103,7 +103,6 @@ router.get('/getHomeworks', (req, res) => {
 );
 
 // Upload a file
-
 router.post('/upload', upload.single('pdf'), (req, res) => {
     const { title, description, publication_date, noEmployee } = req.body;
     const pdf = req.file.path;

@@ -9,14 +9,18 @@ router.post('/createUser', (req, res) => {
     // verify if noEmployee is already in use
     const query = `SELECT * FROM users WHERE noStudent=${noStudent}`;
     connection.query(query, (err, result) => {
-        if (err) throw err;
+        if (err) {
+            res.status(500).json({ message: '0' }); // Error creating user
+        }
         if (result.length > 0) {
-            res.status(500).send('ID already in use');
+            res.status(400).json({ message: '2' }); // User already exists
         } else {
             const query = `INSERT INTO users (noStudent, name, email, password) VALUES ('${noStudent}', '${name}', '${email}', '${password}')`;
             connection.query(query, (err, result) => {
-                if (err) throw err;
-                res.status(200).send('User created');
+                if (err) {
+                    res.status(500).json({ message: '0' }); // Error creating user
+                }
+                res.status(200).json({ message: '1' }); // User created
             });
         }
     });
@@ -28,8 +32,10 @@ router.put('/updateUser/:noStudent', (req, res) => {
     const { name, email, password } = req.body;
     const query = `UPDATE users SET name='${name}', email='${email}', password='${password}' WHERE noStudent=${noStudent}`;
     connection.query(query, (err, result) => {
-        if (err) throw err;
-        res.status(200).send('User updated');
+        if (err) {
+            res.status(500).json({ message: '0' }); // Error updating user
+        }
+        res.status(200).json({ message: '1' }); // User updated
     });
 });
 
@@ -38,8 +44,10 @@ router.delete('/deleteUser/:noStudent', (req, res) => {
     const { noStudent } = req.params;
     const query = `DELETE FROM users WHERE noStudent=${noStudent}`;
     connection.query(query, (err, result) => {
-        if (err) throw err;
-        res.status(200).send('User deleted');
+        if (err) {
+            res.status(500).json({ message: '0' }); // Error deleting user
+        }
+        res.status(200).json({ message: '1' }); // User deleted
     });
 });
 
@@ -48,9 +56,9 @@ router.get('/getUsers', (req, res) => {
     const query = `SELECT * FROM users`;
     connection.query(query, (err, result) => {
         if (err) {
-            res.status(500).send('Error retrieving users');
+            res.status(500).json({ message: '0' }); // Error retrieving users
         }
-        res.send(result);
+        res.status(200).json(result); // Users found
     })
 });
 
@@ -60,22 +68,29 @@ router.get('/getUser/:noStudent', (req, res) => {
     const query = `SELECT * FROM users WHERE noStudent=${noStudent}`;
     connection.query(query, (err, result) => {
         if (err) {
-            res.status(500).send('Error retrieving user');
+            res.status(500).json({ message: '0' }); // Error retrieving user
         }
-        res.send(result);
+        res.status(200).json(result); // User found
     })
 });
 
 // Login with noStudent and password
+
 router.post('/login', (req, res) => {
     const { noStudent, password } = req.body;
-    const query = `SELECT * FROM admins WHERE noEmployee='${noStudent}' AND password='${password}'`;
+    // verify if noStudent and password are not empty
+    if (!noStudent || !password) {
+        res.status(400).json({ message: '2' }); // Empty fields
+    }
+    const query = `SELECT * FROM users WHERE noStudent='${noStudent}' AND password='${password}'`;
     connection.query(query, (err, result) => {
-        if (err) throw err;
+        if (err) {
+            res.status(500).json({ message: '0' }); // Error retrieving user
+        }
         if (result.length > 0) {
-            res.status(200).send('Login successful');
+            res.status(200).json({ message: '1' }); // User found
         } else {
-            res.status(500).send('Wrong credentials');
+            res.status(500).json({ message: '2' }); // User not found
         }
     });
 });
