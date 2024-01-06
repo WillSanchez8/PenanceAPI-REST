@@ -6,7 +6,7 @@ POST http://localhost:3000/admin/createAdmin HTTP/1.1
 Content-Type: application/json
 
 {
-    "noEmployee": "998852345",
+    "noEmployee": "42575458",
     "name": "Pepe Pollas",
     "email": "pepe@galle.com",
     "password": "elsuperpollo"
@@ -23,7 +23,7 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:3000/admin/deleteAdmin/123456789 HTTP/1.1
+PUT http://localhost:3000/admin/deleteAdmin/42575458 HTTP/1.1
 
 
 ###
