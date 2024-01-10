@@ -10,10 +10,13 @@ const { error } = require('console');
 // Configuring multer
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.resolve(__dirname, '../docs'));
+      const rootPath = appRoot.toString();
+      const destinationPath = path.join(rootPath, 'docs');
+      cb(null, destinationPath);
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
+      const filename = Date.now() + path.extname(file.originalname);
+      cb(null, filename);
     }
 });
 
@@ -27,16 +30,17 @@ router.delete('/delete/:idB', (req, res) => {
   
     connection.query(query, [idB], (error, results) => {
       if (error) {
-        return res.status(500).json({ message: '0' }); // Error deleting books
+        return res.status(500).json({ message: '3' }); // book not found
       }
   
       if (results.length > 0) {
-        fs.unlink(results[0].pdf, (err) => {
+        const filePath = path.join(appRoot.toString(), results[0].pdf);
+        fs.unlink(filePath, (err) => {
           if (err) {
-            return res.status(500).json({ message: '0' }); // Error deleting books
+            return res.status(500).json({ message: '4' }); // Error deleting books
           }
   
-          const deleteQuery = 'DELETE FROM books WHERE idHB = ?';
+          const deleteQuery = 'DELETE FROM books WHERE idB = ?';
           connection.query(deleteQuery, [idB], (error, results) => {
             if (error) {
               return res.status(500).send({ message: '0' }); // Error deleting books
@@ -62,7 +66,8 @@ router.get('/download/:idB', (req, res) => {
       }
   
       if (results.length > 0) {
-        res.download(path.resolve(__dirname, results[0].pdf));
+        const filePath = path.join(appRoot.toString(), results[0].pdf);
+        res.download(filePath);
       } else {
         res.status(404).send({ message: '2' }); // books not found
       }
@@ -105,7 +110,7 @@ router.get('/getBooks', (req, res) => {
 // Upload a file
 router.post('/upload', upload.single('pdf'), (req, res) => {
     const { title, author, publication_date, noEmployee } = req.body;
-    const pdf = req.file.path;
+    const pdf = path.relative(appRoot.toString(), req.file.path);
   
     // Obtén el ID más grande
     connection.query('SELECT MAX(idB) AS maxId FROM books', (error, results) => {

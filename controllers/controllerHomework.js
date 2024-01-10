@@ -9,12 +9,15 @@ const { error } = require('console');
 
 // Configuring multer
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.resolve(__dirname, '../docs'));
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
+  destination: function (req, file, cb) {
+    const rootPath = appRoot.toString();
+    const destinationPath = path.join(rootPath, 'docs');
+    cb(null, destinationPath);
+  },
+  filename: function (req, file, cb) {
+    const filename = Date.now() + path.extname(file.originalname);
+    cb(null, filename);
+  }
 });
 
 const upload = multer({ storage });
@@ -30,9 +33,10 @@ router.delete('/delete/:idH', (req, res) => {
       }
   
       if (results.length > 0) {
-        fs.unlink(results[0].pdf, (err) => {
+        const filePath = path.join(appRoot.toString(), results[0].pdf);
+        fs.unlink(filePath, (err) => {
           if (err) {
-            return res.status(500).json({ message: '0' }); // Error deleting homework
+            return res.status(500).json({ message: '4' }); // Error deleting books
           }
   
           const deleteQuery = 'DELETE FROM homework WHERE idH = ?';
@@ -61,7 +65,8 @@ router.get('/download/:idH', (req, res) => {
       }
   
       if (results.length > 0) {
-        res.download(path.resolve(__dirname, results[0].pdf));
+        const filePath = path.join(appRoot.toString(), results[0].pdf);
+        res.download(filePath);
       } else {
         res.status(404).send({ message: '2' }); // Homework not found
       }
@@ -105,7 +110,7 @@ router.get('/getHomeworks', (req, res) => {
 // Upload a file
 router.post('/upload', upload.single('pdf'), (req, res) => {
     const { title, description, publication_date, noEmployee } = req.body;
-    const pdf = req.file.path;
+    const pdf = path.relative(appRoot.toString(), req.file.path);
   
     // Obtén el ID más grande
     connection.query('SELECT MAX(idH) AS maxId FROM homework', (error, results) => {
