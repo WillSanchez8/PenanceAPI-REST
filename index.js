@@ -7,6 +7,7 @@ const homeworkRoutes = require('./controllers/controllerHomework');
 const userRoutes = require('./controllers/controllerUser');
 const sliderRoutes = require('./controllers/controllerSlider');
 const bookRoutes = require('./controllers/controllerBook');
+const imags = require('./controllers/controllerImage');
 
 const app = express();
 dotenv.config();
@@ -18,6 +19,8 @@ app.use('/homework', homeworkRoutes);
 app.use('/user', userRoutes);
 app.use('/slider', sliderRoutes);
 app.use('/book', bookRoutes);
+app.use('/image', imags);
+
 
 app.listen(process.env.PORT, '0.0.0.0', () => {
     console.log(`Server started on port ${process.env.PORT}`);
