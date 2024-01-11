@@ -109,7 +109,7 @@ router.get('/getHomeworks', (req, res) => {
 
 // Upload a file
 router.post('/upload', upload.single('pdf'), (req, res) => {
-    const { title, description, publication_date, noEmployee } = req.body;
+    const { title, description, publication_date, noEmployee, category} = req.body;
     const pdf = path.relative(appRoot.toString(), req.file.path);
   
     // Obtén el ID más grande
@@ -120,11 +120,11 @@ router.post('/upload', upload.single('pdf'), (req, res) => {
       // Incrementa el ID más grande en uno
       const idH = results[0].maxId + 1;
       // Verify if title or description are empty
-      if (!title || !description) {
+      if (!title || !description || !category || !noEmployee) {
         res.status(400).json({ message: '2' }); // One or more fields are empty
       } else {
-        const query = 'INSERT INTO homework (idH, title, description, publication_date, pdf, noEmployee) VALUES (?, ?, ?, ?, ?, ?)';
-        connection.query(query, [idH, title, description, publication_date, pdf, noEmployee], (error, results) => {
+        const query = 'INSERT INTO homework (idH, title, description, publication_date, pdf, noEmployee, category) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        connection.query(query, [idH, title, description, publication_date, pdf, noEmployee, category], (error, results) => {
           if (error) {
             return res.status(500).json({ message: '0' }); // Error creating homework
           }
