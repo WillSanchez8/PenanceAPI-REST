@@ -27,6 +27,7 @@ CREATE TABLE `admins` (
   `name` varchar(40) DEFAULT NULL,
   `email` varchar(40) DEFAULT NULL,
   `password` varchar(40) DEFAULT NULL,
+  `status` int(5) NOT NULL DEFAULT 1,
   PRIMARY KEY (`noEmployee`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -37,7 +38,7 @@ CREATE TABLE `admins` (
 
 LOCK TABLES `admins` WRITE;
 /*!40000 ALTER TABLE `admins` DISABLE KEYS */;
-INSERT INTO `admins` VALUES (874953,'Aquiles VaEsta','essta@galle.com','tarado'),(90054432,'Helen Mirren','helen@galle.com','passwordSecret'),(345636781,'Jehn Doe','jehn@galle.com','password'),(998852345,'Pepe Pollas','pepe@galle.com','elsuperpollo');
+INSERT INTO `admins` VALUES (5545415,'Lolita Chavez','lolita@galle.com','lolita',1),(42575458,'Pepe Pollas','pepe@galle.com','elsuperpollo',0),(90054432,'Helen Mirren','helen@galle.com','passwordSecret',1),(345636781,'Jehn Doe','jehn@galle.com','password',1),(998852345,'Pepe Pollas','pepe@galle.com','elsuperpollo',1);
 /*!40000 ALTER TABLE `admins` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -165,4 +166,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-05 11:48:21
+-- Dump completed on 2024-01-05 19:11:18

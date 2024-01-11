@@ -79,13 +79,13 @@ router.put('/updateAdmin/:noEmployee', (req, res) => {
 */
 
 // Delete an admin - Code optimized and res.JSON added
-router.delete('/deleteAdmin/:noEmployee', (req, res) => {
+router.put('/deleteAdmin/:noEmployee', (req, res) => {
     const { noEmployee } = req.params;
     // verify if noEmployee are empty
     if (!noEmployee) {
         res.status(400).json({ message: '2' }); // One or more fields are empty
     } else {
-        const query = `DELETE FROM admins WHERE noEmployee=${noEmployee}`;
+        const query = `UPDATE admins SET status= 0 WHERE noEmployee=${noEmployee}`;
         connection.query(query, (err, result) => {
         if (err) {
             res.status(500).json({ message: '0' }); // Error deleting admin
@@ -136,7 +136,7 @@ router.post('/login', (req, res) => {
     if (!noEmployee || !password) {
         res.status(400).json({ message: '2' }); // One or more fields are empty
     } else {
-        const query = `SELECT * FROM admins WHERE noEmployee='${noEmployee}' AND password='${password}'`;
+        const query = `SELECT * FROM admins WHERE noEmployee='${noEmployee}' AND password='${password}' AND status=1`;
         connection.query(query, (err, result) => {
             if (err) {
                 res.status(500).json({ message: '0' }); // Error retrieving admin
@@ -144,7 +144,7 @@ router.post('/login', (req, res) => {
             if (result.length > 0) {
                 res.status(200).json({ message: '1' }); // Login successful
             } else {
-                res.status(403).json({ message: '3' }); // Wrong credentials
+                res.status(403).json({ message: '3' }); // Wrong credentials or admin inactive
             }
         });
     }
