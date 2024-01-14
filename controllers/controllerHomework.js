@@ -22,6 +22,24 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// search homeworks by category
+router.get('/search/:category', (req, res) => {
+  const { category } = req.params;
+  const query = 'SELECT * FROM homework WHERE category = ?';
+
+  connection.query(query, [category], (error, results) => {
+    if (error) {
+      return res.status(500).json({ message: '0' }); // Error retrieving homeworks
+    }
+
+    if (results.length > 0) {
+      res.status(200).json(results);
+    } else {
+      res.status(404).json({ message: '2' }); // Homework not found
+    }
+  });
+})
+
 // Delete a file
 router.delete('/delete/:idH', (req, res) => {
     const { idH } = req.params;
