@@ -9,12 +9,15 @@ const sliderRoutes = require('./controllers/controllerSlider');
 const bookRoutes = require('./controllers/controllerBook');
 const imags = require('./controllers/controllerImage');
 const task = require('./controllers/controllerTask');
+const path = require('path');
+
 
 const app = express();
 dotenv.config();
 
 app.use(bodyParser.json());
 
+app.use('/img', express.static(path.join(__dirname, 'img')));
 app.use('/admin', adminRoutes);
 app.use('/homework', homeworkRoutes);
 app.use('/user', userRoutes);
