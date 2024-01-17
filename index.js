@@ -11,7 +11,6 @@ const imags = require('./controllers/controllerImage');
 const task = require('./controllers/controllerTask');
 const path = require('path');
 
-
 const app = express();
 dotenv.config();
 
@@ -24,6 +23,7 @@ app.use('/user', userRoutes);
 app.use('/slider', sliderRoutes);
 app.use('/book', bookRoutes);
 app.use('/image', imags);
+app.use('/img', express.static(path.join(__dirname, 'img')));
 app.use('/task',task);
 
 
