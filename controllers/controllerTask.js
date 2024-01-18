@@ -23,31 +23,93 @@ const storage = multer.diskStorage({
   
   const uploadTask = multer({ storage });
 
-  router.post('/upload', uploadTask.single('pdf'), (req, res) => {
-    const { title, description, publication_date, noEmployee, category} = req.body;
-    const pdf = path.relative(appRoot.toString(), req.file.path);
-  
-    // Obtén el ID más grande
-    connection.query('SELECT MAX(idH) AS maxId FROM homework', (error, results) => {
-      if (error) {
-        return res.status(400).json({ message: '0' }); // Error creating homework
+  router.post('/create', uploadTask.single('url'), (req, res) => {
+    const { noStudent, idH, status } = req.body;
+    let url = null;
+
+    // Verifica si los campos no están vacíos
+    if (!noStudent && !idH) {
+      res.status(400).json({ message: '2' }); // One or more fields are empty
+    } else {
+      // Verifica si el archivo fue cargado
+      if (req.file) {
+        url = path.relative(appRoot.toString(), req.file.path);
       }
-      // Incrementa el ID más grande en uno
-      const idH = results[0].maxId + 1;
-      // Verify if title or description are empty
-      if (!title || !description || !category || !noEmployee) {
-        res.status(400).json({ message: '2' }); // One or more fields are empty
-      } else {
-        const query = 'INSERT INTO homework (idH, title, description, publication_date, pdf, noEmployee, category) VALUES (?, ?, ?, ?, ?, ?, ?)';
-        connection.query(query, [idH, title, description, publication_date, pdf, noEmployee, category], (error, results) => {
-          if (error) {
-            return res.status(500).json({ message: '0' }); // Error creating homework
+
+      const query = url
+        ? 'INSERT INTO users_work (noStudent, idH, status, url) VALUES (?, ?, 1, ?)'
+        : 'INSERT INTO users_work (noStudent, idH, status) VALUES (?, ?, 1)';
+
+      connection.query(query, [noStudent, idH, url], (error, results) => {
+        if (error) {
+          return res.status(500).json({ message: '0' }); // Error creating task
+        }
+        res.status(201).json({ message: '1' }); // task created
+      });
+    }
+  });
+
+  //Update status task to 0
+  router.put('/status', (req, res) => {
+    const { noStudent, idH } = req.body;
+    const updateQuery = 'UPDATE users_work SET status = 0 WHERE noStudent = ? AND idH = ?';
+
+    connection.query(updateQuery, [noStudent, idH], (error, results) => {
+      if (error) {
+        return res.status(500).json({ message: '0' });
+      }
+      res.status(200).json({ message: '1' });
+    });
+  });
+
+
+  // Delete a file
+  router.delete('/delete', (req, res) => {
+    const { noStudent, idH } = req.body;
+    console.log(req.body);
+    const query = 'SELECT url FROM users_work WHERE noStudent = ? AND idH = ?';
+
+    connection.query(query, [noStudent, idH], (error, results) => {
+      if (error) {
+        return res.status(500).json({ message: '3' }); // book not found
+      }
+
+      if (results.length > 0 && results[0] && results[0].url) {//
+        const filePath = path.join(appRoot.toString(), results[0].url);
+        fs.unlink(filePath, (err) => {
+          if (err) {
+            return res.status(500).json({ message: '4' }); // Error deleting books
           }
-          res.status(201).json({ message: '1' }); // Homework created
+
+          const deleteQuery = 'DELETE FROM users_work WHERE noStudent = ? AND idH = ?';
+          connection.query(deleteQuery, [noStudent, idH], (error, results) => {
+            if (error) {
+              return res.status(500).json({ message: '0' }); // Error deleting books
+            }
+            res.status(200).json({ message: '1' }); // Homework books
+          });
         });
+      } else {
+        console.log(results);//no hay nada
+        res.status(404).json({ message: '2' }); // 
       }
     });
   }
-);
+  );
+
+  //Elimina el registro completo de la tarea
+  router.delete('/deleteTaskComplete', (req, res) => {
+    const { idH, noStudent } = req.body;
+    const query = 'DELETE FROM users_work WHERE idH = ? AND noStudent = ?';
+
+    connection.query(query, [idH, noStudent], (error, results) => {
+      if (error) {
+        return res.status(500).json({ message: '0' }); // Error deleting books
+      }
+      res.status(200).json({ message: '1' }); // Homework books
+    });
+  }
+  );
+    
 
 module.exports = router;
