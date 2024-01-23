@@ -13,7 +13,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
-const db = require('./db');
+const db = require('./db'); // Aquí cambiamos la forma en que importamos db
 const adminRoutes = require('./controllers/controllerAdmin');
 const homeworkRoutes = require('./controllers/controllerHomework');
 const userRoutes = require('./controllers/controllerUser');
@@ -42,4 +42,3 @@ app.use('/task',task);
 app.listen(process.env.PORT, '0.0.0.0', () => {
     console.log(`Server started on port ${process.env.PORT}`);
 });
-

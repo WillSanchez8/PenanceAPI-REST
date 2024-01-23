@@ -181,6 +181,7 @@ router.post('/login', async (req, res) => {
             res.status(404).json({ message: '2' }); // User not found
         }
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ message: '0' }); // Error retrieving user
     }
 });
