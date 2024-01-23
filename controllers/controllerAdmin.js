@@ -19,12 +19,12 @@ router.post('/createAdmin', async (req, res) => {
     }
     try {
         const query = `SELECT * FROM admins WHERE noEmployee=${noEmployee}`;
-        const [result] = await connection.promise().query(query);
+        const [result] = await connection.query(query);
         if (result.length > 0) {
             return res.status(403).json({ message: '2' });
         }
         const insertQuery = `INSERT INTO admins (noEmployee, name, email, password) VALUES ('${noEmployee}', '${name}', '${email}', '${password}')`;
-        await connection.promise().query(insertQuery);
+        await connection.query(insertQuery);
         return res.status(200).json({ message: '1' });
     } catch (err) {
         return res.status(500).json({ message: '0' });
@@ -66,7 +66,7 @@ router.put('/updateAdmin/:noEmployee', async (req, res) => {
     const { name, email, password } = req.body;
     const query = `UPDATE admins SET name='${name}', email='${email}', password='${password}' WHERE noEmployee=${noEmployee}`;
     try {
-        await connection.promise().query(query);
+        await connection.query(query);
         return res.status(200).json({ message: '1' });
     } catch (err) {
         return res.status(500).json({ message: '0' });
@@ -94,7 +94,7 @@ router.put('/deleteAdmin/:noEmployee', async (req, res) => {
     }
     const query = `UPDATE admins SET status= 0 WHERE noEmployee=${noEmployee}`;
     try {
-        await connection.promise().query(query);
+        await connection.query(query);
         return res.status(200).json({ message: '1' });
     } catch (err) {
         return res.status(500).json({ message: '0' });
@@ -122,7 +122,7 @@ router.put('/deleteAdmin/:noEmployee', (req, res) => {
 router.get('/getAdmins', async (req, res) => {
     const query = `SELECT * FROM admins`;
     try {
-        const [result] = await connection.promise().query(query);
+        const [result] = await connection.query(query);
         return res.status(200).json(result);
     } catch (err) {
         return res.status(500).json({ message: '0' });
@@ -134,7 +134,7 @@ router.get('/getAdmin/:noEmployee', async (req, res) => {
     const { noEmployee } = req.params;
     const query = `SELECT * FROM admins WHERE noEmployee=${noEmployee}`;
     try {
-        const [result] = await connection.promise().query(query);
+        const [result] = await connection.query(query);
         return res.status(200).json(result);
     } catch (err) {
         return res.status(500).json({ message: '0' });
@@ -149,7 +149,7 @@ router.post('/login', async (req, res) => {
     }
     const query = `SELECT * FROM admins WHERE noEmployee='${noEmployee}' AND password='${password}' AND status=1`;
     try {
-        const [result] = await connection.promise().query(query);
+        const [result] = await connection.query(query);
         if (result.length > 0) {
             return res.status(200).json({ message: '1' });
         } else {

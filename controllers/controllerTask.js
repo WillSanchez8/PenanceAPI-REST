@@ -50,7 +50,7 @@ router.post('/create', uploadTask.single('url'), async (req, res) => {
         const query = url ? 'INSERT INTO users_work (noStudent, idH, status, url) VALUES (?, ?, 1, ?)' : 'INSERT INTO users_work (noStudent, idH, status) VALUES (?, ?, 1)';
 
         try {
-            await connection.promise().query(query, [noStudent, idH, url]);
+            await connection.query(query, [noStudent, idH, url]);
             res.status(201).json({message: '1'}); // task created
         } catch (error) {
             return res.status(500).json({message: '0'}); // Error creating task
@@ -91,7 +91,7 @@ router.get('/getTask/:idH/:noStudent', async (req, res) => {
     const query = 'SELECT url FROM users_work WHERE noStudent = ? AND idH = ?';
 
     try {
-        const [results] = await connection.promise().query(query, [noStudent, idH]);
+        const [results] = await connection.query(query, [noStudent, idH]);
         if (results.length > 0 && results[0] && results[0].url) {
             const taskUrl = results[0].url;
             res.status(200).json({message: '1', taskUrl}); // Task found
@@ -129,7 +129,7 @@ router.put('/status', async (req, res) => {
     const updateQuery = 'UPDATE users_work SET status = 0 WHERE noStudent = ? AND idH = ?';
 
     try {
-        await connection.promise().query(updateQuery, [noStudent, idH]);
+        await connection.query(updateQuery, [noStudent, idH]);
         res.status(200).json({message: '1'});
     } catch (error) {
         return res.status(500).json({message: '0'});
@@ -157,7 +157,7 @@ router.delete('/delete/:idH/:noStudent', async (req, res) => {
     const query = 'SELECT url FROM users_work WHERE noStudent = ? AND idH = ?';
 
     try {
-        const [results] = await connection.promise().query(query, [noStudent, idH]);
+        const [results] = await connection.query(query, [noStudent, idH]);
         if (results.length > 0 && results[0] && results[0].url) {
             const filePath = path.join(appRoot.toString(), results[0].url);
             try {
@@ -166,7 +166,7 @@ router.delete('/delete/:idH/:noStudent', async (req, res) => {
                 return res.status(500).json({message: '4'}); // Error deleting file
             }
             const deleteQuery = 'DELETE FROM users_work WHERE noStudent = ? AND idH = ?';
-            await connection.promise().query(deleteQuery, [noStudent, idH]);
+            await connection.query(deleteQuery, [noStudent, idH]);
             res.status(200).json({message: '1'}); // Homework deleted
         } else {
             res.status(404).json({message: '2'}); // Homework not found
@@ -216,7 +216,7 @@ router.delete('/deleteTaskComplete/:idH/:noStudent', async (req, res) => {
     const query = 'DELETE FROM users_work WHERE idH = ? AND noStudent = ?';
 
     try {
-        await connection.promise().query(query, [idH, noStudent]);
+        await connection.query(query, [idH, noStudent]);
         res.status(200).json({message: '1'}); // Homework deleted
     } catch (error) {
         return res.status(500).json({message: '0'}); // Error deleting homework

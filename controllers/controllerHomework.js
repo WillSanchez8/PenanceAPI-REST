@@ -37,7 +37,7 @@ router.get('/search/:category', async (req, res) => {
   const query = 'SELECT * FROM homework WHERE category = ?';
 
   try {
-    const [results] = await connection.promise().query(query, [category]);
+    const [results] = await connection.query(query, [category]);
     if (results.length > 0) {
       res.status(200).json(results);
     } else {
@@ -73,7 +73,7 @@ router.delete('/delete/:idH', async (req, res) => {
   const query = 'SELECT pdf FROM homework WHERE idH = ?';
 
   try {
-    const [results] = await connection.promise().query(query, [idH]);
+    const [results] = await connection.query(query, [idH]);
     if (results.length > 0) {
       const filePath = path.join(appRoot.toString(), results[0].pdf);
       try {
@@ -82,7 +82,7 @@ router.delete('/delete/:idH', async (req, res) => {
         return res.status(500).json({ message: '4' }); // Error deleting file
       }
       const deleteQuery = 'DELETE FROM homework WHERE idH = ?';
-      await connection.promise().query(deleteQuery, [idH]);
+      await connection.query(deleteQuery, [idH]);
       res.status(200).json({ message: '1' }); // Homework deleted
     } else {
       res.status(404).json({ message: '2' }); // Homework not found
@@ -131,7 +131,7 @@ router.get('/download/:idH', async (req, res) => {
   const query = 'SELECT pdf FROM homework WHERE idH = ?';
 
   try {
-    const [results] = await connection.promise().query(query, [idH]);
+    const [results] = await connection.query(query, [idH]);
     if (results.length > 0) {
       const filePath = path.join(appRoot.toString(), results[0].pdf);
       res.download(filePath);
@@ -170,7 +170,7 @@ router.get('/getHomework/:idH', async (req, res) => {
   const query = 'SELECT * FROM homework WHERE idH = ?';
 
   try {
-    const [results] = await connection.promise().query(query, [idH]);
+    const [results] = await connection.query(query, [idH]);
     if (results.length > 0) {
       res.status(200).json(results[0]);
     } else {
@@ -207,7 +207,7 @@ router.get('/getHomeworks', async (req, res) => {
   const query = 'SELECT * FROM homework';
 
   try {
-    const [results] = await connection.promise().query(query);
+    const [results] = await connection.query(query);
     res.status(200).json(results);
   } catch (error) {
     return res.status(500).json({ message: '0' }); // Error retrieving homeworks
@@ -233,13 +233,13 @@ router.post('/upload', upload.single('pdf'), async (req, res) => {
   const pdf = path.relative(appRoot.toString(), req.file.path);
 
   try {
-    const [results] = await connection.promise().query('SELECT MAX(idH) AS maxId FROM homework');
+    const [results] = await connection.query('SELECT MAX(idH) AS maxId FROM homework');
     const idH = results[0].maxId + 1;
     if (!title || !description || !category || !noEmployee) {
       res.status(400).json({ message: '2' }); // One or more fields are empty
     } else {
       const query = 'INSERT INTO homework (idH, title, description, publication_date, pdf, noEmployee, category) VALUES (?, ?, ?, ?, ?, ?, ?)';
-      await connection.promise().query(query, [idH, title, description, publication_date, pdf, noEmployee, category]);
+      await connection.query(query, [idH, title, description, publication_date, pdf, noEmployee, category]);
       res.status(201).json({ message: '1' }); // Homework created
     }
   } catch (error) {

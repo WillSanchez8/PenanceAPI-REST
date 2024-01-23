@@ -30,10 +30,10 @@ router.post('/createSlider', async (req, res) => {
     const { phrase, details, author, publication_date, noEmployee } = req.body;
 
     try {
-        const [results] = await connection.promise().query('SELECT MAX(idS) AS idS FROM sliders');
+        const [results] = await connection.query('SELECT MAX(idS) AS idS FROM sliders');
         const idS = results[0].idS + 1;
         const query = 'INSERT INTO sliders (idS, phrase, details, author, publication_date, noEmployee) VALUES (?, ?, ?, ?, ?, ?)';
-        await connection.promise().query(query, [idS, phrase, details, author, publication_date, noEmployee]);
+        await connection.query(query, [idS, phrase, details, author, publication_date, noEmployee]);
         res.status(201).json({ message: 'Slider created' });
     } catch (error) {
         return res.status(500).json({ message: 'Error creating slider' });
@@ -65,7 +65,7 @@ router.put('/updateSlider/:idS', async (req, res) => {
     const query = 'UPDATE sliders SET phrase=?, details=?, author=?, publication_date=?, noEmployee=? WHERE idS=?';
 
     try {
-        await connection.promise().query(query, [phrase, details, author, publication_date, noEmployee, idS]);
+        await connection.query(query, [phrase, details, author, publication_date, noEmployee, idS]);
         res.status(200).json({ message: 'Slider updated' });
     } catch (error) {
         return res.status(500).json({ message: 'Error updating slider' });
@@ -90,7 +90,7 @@ router.delete('/deleteSlider/:idS', async (req, res) => {
     const query = 'DELETE FROM sliders WHERE idS = ?';
 
     try {
-        await connection.promise().query(query, [idS]);
+        await connection.query(query, [idS]);
         res.status(200).json({ message: 'Slider deleted' });
     } catch (error) {
         return res.status(500).json({ message: 'Error deleting slider' });
@@ -113,7 +113,7 @@ router.get('/getSliders', async (req, res) => {
     const query = 'SELECT * FROM sliders';
 
     try {
-        const [results] = await connection.promise().query(query);
+        const [results] = await connection.query(query);
         res.status(200).json(results);
     } catch (error) {
         return res.status(500).json({ message: 'Error retrieving sliders' });
@@ -138,7 +138,7 @@ router.get('/getSlider/:idS', async (req, res) => {
     const query = 'SELECT * FROM sliders WHERE idS = ?';
 
     try {
-        const [results] = await connection.promise().query(query, [idS]);
+        const [results] = await connection.query(query, [idS]);
         if (results.length > 0) {
             res.status(200).json(results[0]);
         } else {

@@ -38,7 +38,7 @@ router.delete('/delete/:idB', async (req, res) => {
     const query = 'SELECT pdf FROM books WHERE idB = ?';
 
     try {
-        const [results] = await connection.promise().query(query, [idB]);
+        const [results] = await connection.query(query, [idB]);
         if (results.length > 0) {
             const filePath = path.join(appRoot.toString(), results[0].pdf);
             try {
@@ -47,7 +47,7 @@ router.delete('/delete/:idB', async (req, res) => {
                 return res.status(500).json({ message: '4' }); // Error deleting file
             }
             const deleteQuery = 'DELETE FROM books WHERE idB = ?';
-            await connection.promise().query(deleteQuery, [idB]);
+            await connection.query(deleteQuery, [idB]);
             res.status(200).json({ message: '1' }); // Homework books
         } else {
             res.status(404).json({ message: '2' }); // books not found
@@ -95,7 +95,7 @@ router.get('/download/:idB', async (req, res) => {
     const query = 'SELECT pdf FROM books WHERE idB = ?';
 
     try {
-        const [results] = await connection.promise().query(query, [idB]);
+        const [results] = await connection.query(query, [idB]);
         if (results.length > 0) {
             const filePath = path.join(appRoot.toString(), results[0].pdf);
             res.download(filePath);
@@ -133,7 +133,7 @@ router.get('/getBook/:idB', async (req, res) => {
     const query = 'SELECT * FROM books WHERE idB = ?';
 
     try {
-        const [results] = await connection.promise().query(query, [idB]);
+        const [results] = await connection.query(query, [idB]);
         if (results.length > 0) {
             res.status(200).json(results[0]);
         } else {
@@ -168,7 +168,7 @@ router.get('/getBooks', async (req, res) => {
     const query = 'SELECT * FROM books';
 
     try {
-        const [results] = await connection.promise().query(query);
+        const [results] = await connection.query(query);
         res.status(200).json(results);
     } catch (error) {
         return res.status(500).json({ message: '0' }); // Error retrieving books
@@ -194,13 +194,13 @@ router.post('/upload', upload.single('pdf'), async (req, res) => {
     const pdf = path.relative(appRoot.toString(), req.file.path);
 
     try {
-        const [results] = await connection.promise().query('SELECT MAX(idB) AS maxId FROM books');
+        const [results] = await connection.query('SELECT MAX(idB) AS maxId FROM books');
         const idB = results[0].maxId + 1;
         if (!title || !author || !noEmployee) {
             res.status(400).json({ message: '2' }); // One or more fields are empty
         } else {
             const query = 'INSERT INTO books (idB, title, author, publication_date, pdf, noEmployee) VALUES (?, ?, ?, ?, ?, ?)';
-            await connection.promise().query(query, [idB, title, author, publication_date, pdf, noEmployee]);
+            await connection.query(query, [idB, title, author, publication_date, pdf, noEmployee]);
             res.status(201).json({ message: '1' }); // books created
         }
     } catch (error) {
