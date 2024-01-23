@@ -1,3 +1,12 @@
+/**
+ * Nombre del archivo: controllerHomework.js
+ * Descripción: Controlador de las tareas
+ * Desarrolladores:
+ *      - Fernando Ruiz
+ * Fecha de creación: 07/01/2024
+ * Fecha de modificación: 23/01/2024
+ */
+
 const express = require('express');
 const router = express.Router();
 const connection = require('../db');
@@ -23,6 +32,22 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // search homeworks by category
+router.get('/search/:category', async (req, res) => {
+  const { category } = req.params;
+  const query = 'SELECT * FROM homework WHERE category = ?';
+
+  try {
+    const [results] = await connection.promise().query(query, [category]);
+    if (results.length > 0) {
+      res.status(200).json(results);
+    } else {
+      res.status(404).json({ message: '2' }); // Homework not found
+    }
+  } catch (error) {
+    return res.status(500).json({ message: '0' }); // Error retrieving homeworks
+  }
+});
+/*
 router.get('/search/:category', (req, res) => {
   const { category } = req.params;
   const query = 'SELECT * FROM homework WHERE category = ?';
@@ -40,7 +65,33 @@ router.get('/search/:category', (req, res) => {
   });
 })
 
+ */
+
 // Delete a file
+router.delete('/delete/:idH', async (req, res) => {
+  const { idH } = req.params;
+  const query = 'SELECT pdf FROM homework WHERE idH = ?';
+
+  try {
+    const [results] = await connection.promise().query(query, [idH]);
+    if (results.length > 0) {
+      const filePath = path.join(appRoot.toString(), results[0].pdf);
+      try {
+        fs.unlinkSync(filePath);
+      } catch (error) {
+        return res.status(500).json({ message: '4' }); // Error deleting file
+      }
+      const deleteQuery = 'DELETE FROM homework WHERE idH = ?';
+      await connection.promise().query(deleteQuery, [idH]);
+      res.status(200).json({ message: '1' }); // Homework deleted
+    } else {
+      res.status(404).json({ message: '2' }); // Homework not found
+    }
+  } catch (error) {
+    return res.status(500).json({ message: '3' }); // Homework not found
+  }
+});
+/*
 router.delete('/delete/:idH', (req, res) => {
     const { idH } = req.params;
     const query = 'SELECT pdf FROM homework WHERE idH = ?';
@@ -72,7 +123,26 @@ router.delete('/delete/:idH', (req, res) => {
   }
 );
 
+ */
+
 // download a file pdf
+router.get('/download/:idH', async (req, res) => {
+  const { idH } = req.params;
+  const query = 'SELECT pdf FROM homework WHERE idH = ?';
+
+  try {
+    const [results] = await connection.promise().query(query, [idH]);
+    if (results.length > 0) {
+      const filePath = path.join(appRoot.toString(), results[0].pdf);
+      res.download(filePath);
+    } else {
+      res.status(404).send({ message: '2' }); // Homework not found
+    }
+  } catch (error) {
+    return res.status(500).json({ message: '0' }); // Error downloading homework
+  }
+});
+/*
 router.get('/download/:idH', (req, res) => {
     const { idH } = req.params;
     const query = 'SELECT pdf FROM homework WHERE idH = ?';
@@ -92,7 +162,25 @@ router.get('/download/:idH', (req, res) => {
   }
 );
 
+ */
+
 // Get a homework by ID
+router.get('/getHomework/:idH', async (req, res) => {
+  const { idH } = req.params;
+  const query = 'SELECT * FROM homework WHERE idH = ?';
+
+  try {
+    const [results] = await connection.promise().query(query, [idH]);
+    if (results.length > 0) {
+      res.status(200).json(results[0]);
+    } else {
+      res.status(404).json({ message: '2' }); // Homework not found
+    }
+  } catch (error) {
+    return res.status(500).json({ message: '0' }); // Error retrieving homework
+  }
+});
+/*
 router.get('/getHomework/:idH', (req, res) => {
     const { idH } = req.params;
     const query = 'SELECT * FROM homework WHERE idH = ?';
@@ -111,8 +199,21 @@ router.get('/getHomework/:idH', (req, res) => {
   }
 );
 
+ */
+
 
 // Get all homeworks
+router.get('/getHomeworks', async (req, res) => {
+  const query = 'SELECT * FROM homework';
+
+  try {
+    const [results] = await connection.promise().query(query);
+    res.status(200).json(results);
+  } catch (error) {
+    return res.status(500).json({ message: '0' }); // Error retrieving homeworks
+  }
+});
+/*
 router.get('/getHomeworks', (req, res) => {
     const query = 'SELECT * FROM homework';
   
@@ -124,8 +225,28 @@ router.get('/getHomeworks', (req, res) => {
     });
   }
 );
+ */
 
 // Upload a file
+router.post('/upload', upload.single('pdf'), async (req, res) => {
+  const { title, description, publication_date, noEmployee, category } = req.body;
+  const pdf = path.relative(appRoot.toString(), req.file.path);
+
+  try {
+    const [results] = await connection.promise().query('SELECT MAX(idH) AS maxId FROM homework');
+    const idH = results[0].maxId + 1;
+    if (!title || !description || !category || !noEmployee) {
+      res.status(400).json({ message: '2' }); // One or more fields are empty
+    } else {
+      const query = 'INSERT INTO homework (idH, title, description, publication_date, pdf, noEmployee, category) VALUES (?, ?, ?, ?, ?, ?, ?)';
+      await connection.promise().query(query, [idH, title, description, publication_date, pdf, noEmployee, category]);
+      res.status(201).json({ message: '1' }); // Homework created
+    }
+  } catch (error) {
+    return res.status(500).json({ message: '0' }); // Error creating homework
+  }
+});
+/*
 router.post('/upload', upload.single('pdf'), (req, res) => {
     const { title, description, publication_date, noEmployee, category} = req.body;
     const pdf = path.relative(appRoot.toString(), req.file.path);
@@ -152,5 +273,7 @@ router.post('/upload', upload.single('pdf'), (req, res) => {
     });
   }
 );
+
+ */
 
   module.exports = router;

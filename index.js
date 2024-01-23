@@ -1,3 +1,15 @@
+/**
+ * Nombre del archivo: index.js
+ * Descripción: Archivo principal del servidor
+ * Desarrolladores:
+ *      - Fernando Ruiz
+ *      - Laura Ramirez
+ *      - Nahum Hernandez
+ *      - William Aguilar
+ * Fecha de creación: 28/12/2023
+ * Fecha de modificación: 23/01/2024
+ */
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');

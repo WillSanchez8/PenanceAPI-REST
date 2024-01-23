@@ -1,3 +1,12 @@
+/**
+ * Nombre del archivo: db.js
+ * Descripción: Archivo de conexión a la base de datos
+ * Desarrolladores:
+ *      - Fernando Ruiz
+ * Fecha de creación: 28/12/2023
+ * Fecha de modificación: 23/01/2024
+ */
+
 const mysql = require('mysql');
 
 const connection = mysql.createConnection({

@@ -1,3 +1,12 @@
+/**
+ * Nombre del archivo: controllerBook.js
+ * Descripción: Controlador de las rutas de books
+ * Desarrolladores:
+ *      - Fernando Ruiz
+ * Fecha de creación: 28/12/2023
+ * Fecha de modificación: 23/01/2024
+ */
+
 const express = require('express');
 const router = express.Router();
 const connection = require('../db');
@@ -24,6 +33,30 @@ const upload = multer({ storage });
 
 
 // Delete a file
+router.delete('/delete/:idB', async (req, res) => {
+    const { idB } = req.params;
+    const query = 'SELECT pdf FROM books WHERE idB = ?';
+
+    try {
+        const [results] = await connection.promise().query(query, [idB]);
+        if (results.length > 0) {
+            const filePath = path.join(appRoot.toString(), results[0].pdf);
+            try {
+                fs.unlinkSync(filePath);
+            } catch (error) {
+                return res.status(500).json({ message: '4' }); // Error deleting file
+            }
+            const deleteQuery = 'DELETE FROM books WHERE idB = ?';
+            await connection.promise().query(deleteQuery, [idB]);
+            res.status(200).json({ message: '1' }); // Homework books
+        } else {
+            res.status(404).json({ message: '2' }); // books not found
+        }
+    } catch (error) {
+        return res.status(500).json({ message: '3' }); // book not found
+    }
+});
+/*
 router.delete('/delete/:idB', (req, res) => {
     const { idB } = req.params;
     const query = 'SELECT pdf FROM books WHERE idB = ?';
@@ -54,8 +87,26 @@ router.delete('/delete/:idB', (req, res) => {
     });
   }
 );
+*/
 
 // download a file pdf
+router.get('/download/:idB', async (req, res) => {
+    const { idB} = req.params;
+    const query = 'SELECT pdf FROM books WHERE idB = ?';
+
+    try {
+        const [results] = await connection.promise().query(query, [idB]);
+        if (results.length > 0) {
+            const filePath = path.join(appRoot.toString(), results[0].pdf);
+            res.download(filePath);
+        } else {
+            res.status(404).send({ message: '2' }); // books not found
+        }
+    } catch (error) {
+        return res.status(500).json({ message: '0' }); // Error downloading books
+    }
+});
+/*
 router.get('/download/:idB', (req, res) => {
     const { idB} = req.params;
     const query = 'SELECT pdf FROM books WHERE idB = ?';
@@ -74,8 +125,25 @@ router.get('/download/:idB', (req, res) => {
     });
   }
 );
+*/
 
 // Get a books by ID
+router.get('/getBook/:idB', async (req, res) => {
+    const { idB } = req.params;
+    const query = 'SELECT * FROM books WHERE idB = ?';
+
+    try {
+        const [results] = await connection.promise().query(query, [idB]);
+        if (results.length > 0) {
+            res.status(200).json(results[0]);
+        } else {
+            res.status(404).json({ message: '2' }); // books not found
+        }
+    } catch (error) {
+        return res.status(500).json({ message: '0' }); // Error retrieving books
+    }
+});
+/*
 router.get('/getBook/:idB', (req, res) => {
     const { idB } = req.params;
     const query = 'SELECT * FROM books WHERE idB = ?';
@@ -93,8 +161,20 @@ router.get('/getBook/:idB', (req, res) => {
     });
   }
 );
+*/
 
 // Get all books
+router.get('/getBooks', async (req, res) => {
+    const query = 'SELECT * FROM books';
+
+    try {
+        const [results] = await connection.promise().query(query);
+        res.status(200).json(results);
+    } catch (error) {
+        return res.status(500).json({ message: '0' }); // Error retrieving books
+    }
+});
+/*
 router.get('/getBooks', (req, res) => {
     const query = 'SELECT * FROM books';
   
@@ -106,8 +186,28 @@ router.get('/getBooks', (req, res) => {
     });
   }
 );
+*/
 
 // Upload a file
+router.post('/upload', upload.single('pdf'), async (req, res) => {
+    const { title, author, publication_date, noEmployee } = req.body;
+    const pdf = path.relative(appRoot.toString(), req.file.path);
+
+    try {
+        const [results] = await connection.promise().query('SELECT MAX(idB) AS maxId FROM books');
+        const idB = results[0].maxId + 1;
+        if (!title || !author || !noEmployee) {
+            res.status(400).json({ message: '2' }); // One or more fields are empty
+        } else {
+            const query = 'INSERT INTO books (idB, title, author, publication_date, pdf, noEmployee) VALUES (?, ?, ?, ?, ?, ?)';
+            await connection.promise().query(query, [idB, title, author, publication_date, pdf, noEmployee]);
+            res.status(201).json({ message: '1' }); // books created
+        }
+    } catch (error) {
+        return res.status(500).json({ message: '0' }); // Error creating books
+    }
+});
+/*
 router.post('/upload', upload.single('pdf'), (req, res) => {
     const { title, author, publication_date, noEmployee } = req.body;
     const pdf = path.relative(appRoot.toString(), req.file.path);
@@ -134,6 +234,7 @@ router.post('/upload', upload.single('pdf'), (req, res) => {
     });
   }
 );
+*/
 
 
 module.exports = router;
