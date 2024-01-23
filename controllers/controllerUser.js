@@ -9,23 +9,25 @@
 
 const express = require('express');
 const router = express.Router();
-const connection = require('../db');
+const connection = require('../db')
 
+//console.log('Imported connection:', connection);
 // Create a new user
 router.post('/createUser', async (req, res) => {
     const { noStudent, name, email, password } = req.body;
     const query = 'SELECT * FROM users WHERE noStudent = ?';
 
     try {
-        const [results] = await connection.promise().query(query, [noStudent]);
+        const [results] = await connection.query(query, [noStudent]);
         if (results.length > 0) {
             res.status(400).json({ message: '2' }); // User already exists
         } else {
             const insertQuery = 'INSERT INTO users (noStudent, name, email, password) VALUES (?, ?, ?, ?)';
-            await connection.promise().query(insertQuery, [noStudent, name, email, password]);
+            await connection.query(insertQuery, [noStudent, name, email, password]);
             res.status(200).json({ message: '1' }); // User created
         }
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ message: '0' }); // Error creating user
     }
 });
@@ -63,7 +65,7 @@ router.put('/updateUser/:noStudent', async (req, res) => {
     const query = 'UPDATE users SET name=?, email=?, password=? WHERE noStudent=?';
 
     try {
-        await connection.promise().query(query, [name, email, password, noStudent]);
+        await connection.query(query, [name, email, password, noStudent]);
         res.status(200).json({ message: '1' }); // User updated
     } catch (error) {
         return res.status(500).json({ message: '0' }); // Error updating user
@@ -91,7 +93,7 @@ router.delete('/deleteUser/:noStudent', async (req, res) => {
     const query = 'DELETE FROM users WHERE noStudent = ?';
 
     try {
-        await connection.promise().query(query, [noStudent]);
+        await connection.query(query, [noStudent]);
         res.status(200).json({ message: '1' }); // User deleted
     } catch (error) {
         return res.status(500).json({ message: '0' }); // Error deleting user
@@ -117,7 +119,7 @@ router.get('/getUsers', async (req, res) => {
     const query = 'SELECT * FROM users';
 
     try {
-        const [results] = await connection.promise().query(query);
+        const [results] = await connection.query(query);
         res.status(200).json(results); // Users found
     } catch (error) {
         return res.status(500).json({ message: '0' }); // Error retrieving users
@@ -143,7 +145,7 @@ router.get('/getUser/:noStudent', async (req, res) => {
     const query = 'SELECT * FROM users WHERE noStudent = ?';
 
     try {
-        const [results] = await connection.promise().query(query, [noStudent]);
+        const [results] = await connection.query(query, [noStudent]);
         if (results.length > 0) {
             res.status(200).json(results[0]); // User found
         } else {
@@ -174,7 +176,7 @@ router.post('/login', async (req, res) => {
     const query = 'SELECT * FROM users WHERE noStudent=? AND password=?';
 
     try {
-        const [results] = await connection.promise().query(query, [noStudent, password]);
+        const [results] = await connection.query(query, [noStudent, password]);
         if (results.length > 0) {
             res.status(200).json({ message: '1' }); // User found
         } else {

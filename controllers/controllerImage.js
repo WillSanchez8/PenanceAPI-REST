@@ -39,13 +39,13 @@ router.post('/uploadImage', uploadImage.single('image'), async (req, res) => {
     const image = path.relative(appRoot.toString(), req.file.path);
 
     try {
-        const [results] = await connection.promise().query('SELECT MAX(idI) AS maxId FROM imagen');
+        const [results] = await connection.query('SELECT MAX(idI) AS maxId FROM imagen');
         const idI = results[0].maxId + 1;
         if (!title || !description || !noEmployee) {
             res.status(400).json({ message: '2' }); // One or more fields are empty
         } else {
             const query = 'INSERT INTO imagen (idI, title, description, publication, image, noEmployee) VALUES (?, ?, ?, ?, ?, ?)';
-            await connection.promise().query(query, [idI, title, description, publication, image, noEmployee]);
+            await connection.query(query, [idI, title, description, publication, image, noEmployee]);
             res.status(201).json({ message: '1' }); // Image created
         }
     } catch (error) {
@@ -88,7 +88,7 @@ router.get('/getImagen', async (req, res) => {
     const query = 'SELECT * FROM imagen';
 
     try {
-        const [results] = await connection.promise().query(query);
+        const [results] = await connection.query(query);
         res.status(200).json(results);
     } catch (error) {
         return res.status(500).json({ message: '0' }); // Error retrieving images
@@ -115,7 +115,7 @@ router.get('/download/:idI', async (req, res) => {
     const query = 'SELECT image FROM imagen WHERE idI = ?';
 
     try {
-        const [results] = await connection.promise().query(query, [idI]);
+        const [results] = await connection.query(query, [idI]);
         if (results.length > 0) {
             const filePath = path.join(appRoot.toString(), results[0].image);
             res.download(filePath);
@@ -153,7 +153,7 @@ router.delete('/delete/:idI', async (req, res) => {
     const query = 'SELECT image FROM imagen WHERE idI = ?';
 
     try {
-        const [results] = await connection.promise().query(query, [idI]);
+        const [results] = await connection.query(query, [idI]);
         if (results.length > 0) {
             const filePath = path.join(appRoot.toString(), results[0].image);
             try {
@@ -162,7 +162,7 @@ router.delete('/delete/:idI', async (req, res) => {
                 return res.status(500).json({ message: '4' }); // Error deleting file
             }
             const deleteQuery = 'DELETE FROM imagen WHERE idI = ?';
-            await connection.promise().query(deleteQuery, [idI]);
+            await connection.query(deleteQuery, [idI]);
             res.status(200).json({ message: '1' }); // Image deleted successfully
         } else {
             res.status(404).json({ message: '2' }); // Image not found
@@ -210,7 +210,7 @@ router.get('/getImage/:idI', async (req, res) => {
     const query = 'SELECT * FROM imagen WHERE idI = ?';
 
     try {
-        const [results] = await connection.promise().query(query, [idI]);
+        const [results] = await connection.query(query, [idI]);
         if (results.length > 0) {
             res.status(200).json(results[0]);
         } else {
