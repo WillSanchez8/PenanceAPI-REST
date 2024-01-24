@@ -13,6 +13,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const adminRoutes = require('./controllers/controllerAdmin');
 const homeworkRoutes = require('./controllers/controllerHomework');
 const userRoutes = require('./controllers/controllerUser');
@@ -24,6 +25,8 @@ const path = require('path');
 
 const app = express();
 dotenv.config();
+
+app.use(cors());
 
 app.use(bodyParser.json());
 
