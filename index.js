@@ -13,7 +13,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
-const db = require('./db'); // Aquí cambiamos la forma en que importamos db
 const adminRoutes = require('./controllers/controllerAdmin');
 const homeworkRoutes = require('./controllers/controllerHomework');
 const userRoutes = require('./controllers/controllerUser');
